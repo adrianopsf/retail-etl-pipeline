@@ -27,8 +27,13 @@ def engine():
     """
     try:
         eng = get_engine()
-        with eng.connect() as conn:
+        # Verify connectivity and bootstrap schemas that the init.sql would
+        # normally create via Docker Compose — required when running in CI
+        # against a bare PostgreSQL service container.
+        with eng.begin() as conn:
             conn.execute(text("SELECT 1"))
+            conn.execute(text("CREATE SCHEMA IF NOT EXISTS staging"))
+            conn.execute(text("CREATE SCHEMA IF NOT EXISTS analytics"))
         yield eng
         eng.dispose()
     except Exception as exc:
