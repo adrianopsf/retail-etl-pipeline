@@ -127,8 +127,13 @@ class OlistExtractor:
 
         logger.info(f"Reading '{name}' ← {spec['file']}")
 
-        parse_dates = spec["parse_dates"] if spec["parse_dates"] else False
-        df = pd.read_csv(path, parse_dates=parse_dates, low_memory=False)
+        df = pd.read_csv(path, low_memory=False)
+
+        # parse_dates via column names was deprecated in pandas 2.0 and removed
+        # in 2.2 — apply pd.to_datetime manually for columns that are present.
+        for col in spec["parse_dates"]:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], errors="coerce")
 
         logger.info(f"  '{name}': {len(df):,} rows × {len(df.columns)} columns")
         return df

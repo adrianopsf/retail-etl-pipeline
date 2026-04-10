@@ -90,7 +90,7 @@ class CustomersTransformer:
     @staticmethod
     def _fill_nulls(df: pd.DataFrame) -> pd.DataFrame:
         df["total_orders"] = df["total_orders"].fillna(0).astype(int)
-        df["total_spent"] = df["total_spent"].fillna(0.0)
+        df["total_spent"] = df["total_spent"].fillna(0.0).infer_objects(copy=False)
         return df
 
     @staticmethod
